@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* 横竖变化 */
+body>div {
+  transform-origin: left top;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+canvas {
+  display: block;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+@font-face {
+  font-family: 'Electronic';
+  src: url('./assets/fonts/FX-LED.TTF');
+}
+
+/* 背景渐变 + 字体镂空*/
+.text-gradient {
+  background-image: linear-gradient(to bottom, #e5e4ea, #5ea8f2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
