@@ -4,11 +4,11 @@ import { camera, cameraRight, cameraForward, UpdateCameraRotation, renderer, bod
 import { KeyCodes, PointerPhase, PointerType, keysJustPressed, keysPressed, lastPointerLockChange, mouseMovement, pointers } from "./Input.js";
 import { spotLightDistance, spotLightDistanceUniform } from "../materials/OceanMaterial.js";
 
-const baseMoveSpeed = 10;
-const shiftMoveSpeed = baseMoveSpeed * 5;
-const smoothSpeed = 15;
-const mindelta = 0.0001;
-const moveSpeedExpMultiplier = 0;
+const baseMoveSpeed = 10; // 基础移动速度
+const shiftMoveSpeed = baseMoveSpeed * 5; // 加速
+const smoothSpeed = 15; // 平滑速度，控制移动流畅度
+const mindelta = 0.0001; // 移动最小变化量
+const moveSpeedExpMultiplier = 0; // 移动速度的指数倍增器
 
 window.mobileAndTabletCheck = () => {
     let check = false;
@@ -22,22 +22,25 @@ window.mobileAndTabletCheck = () => {
 export let touchControls = mobileAndTabletCheck();
 export function setTouchControls(value) {
     touchControls = value;
-    lookSensitivity = touchControls ? 0.01 : 0.03;
+    lookSensitivity = touchControls ? 0.01 : 0.06;
+    // lookSensitivity = touchControls ? 0.005 : 0.015;
 }
-
-let lookSensitivity = touchControls ? 0.01 : 0.03;
-
+// 默认的观察灵敏度
+// let lookSensitivity = touchControls ? 0.01 : 0.03;
+let lookSensitivity = touchControls ? 0.001 : 0.003;
+// 默认的灵敏度倍增因子
 export let sensitivityMult = 1;
 export function SetLookSensitivityMultiplier(value) {
     sensitivityMult = value;
 }
 
-let moving = false;
-let moveVector = new Vector3(0, 0, 0);
-let phi = 0;
-let tetha = 0;
-let moveSpeedMultiplier = 1;
+let moving = false; // 遥感移动状态
+let moveVector = new Vector3(0, 0, 0); // 移动向量
+let phi = 0; // 水平角度，存储摇杆的水平旋转角度
+let tetha = 0; // 垂直角度，存储摇杆的垂直旋转角度
+let moveSpeedMultiplier = 1; // 移动速度倍增器，用于调整移动速度的倍率
 
+// 摇杆
 class Joystick {
     background;
     handle;
@@ -85,7 +88,8 @@ class Joystick {
         let differenceVector = value.clone().sub(this.position);
         let distace = Math.min(differenceVector.length(), this.radius);
         let newHandlePosition = differenceVector.clone().normalize().multiplyScalar(distace);
-        this.vector = newHandlePosition.clone().divideScalar(this.radius);
+        this.vector = newHandlePosition.clone().divideScalar(this.radius); // 限制长度在单位长度内
+        // 将摇杆重置为初始位置
         newHandlePosition.add(this.position);
         this.handle.style.left = newHandlePosition.x + "px";
         this.handle.style.top = newHandlePosition.y + "px";
@@ -135,6 +139,7 @@ export function Update() {
 
                 if (pointer.id == lookPointerId) {
                     phi += pointer.deltaPosition.x * lookSensitivity * sensitivityMult;
+                    // 利用在垂直方向上的位移量调整俯仰角
                     tetha = MathUtils.clamp(tetha - pointer.deltaPosition.y * lookSensitivity * sensitivityMult, -Math.PI / 2, Math.PI / 2);
                 }
             }
@@ -150,7 +155,7 @@ export function Update() {
                 }
             }
 
-            if (pointer.type != PointerPhase.mouse && !document.fullscreenElement && pointer.phase == PointerPhase.ended) {
+            if (pointer.type != PointerType.mouse && !document.fullscreenElement && pointer.phase == PointerPhase.ended) {
                 document.body.requestFullscreen();
                 screen.orientation.lock("landscape");
             }
@@ -159,27 +164,23 @@ export function Update() {
         }
     }
 
-    let targetVector = new Vector3();
+    let targetVector = new Vector3(); // 目标移动向量
 
     // 移动
     if (!touchControls) {
         if (keysPressed.includes(KeyCodes.keyA)) {
-            console.log('移动了');
             targetVector.x -= 1;
         }
 
         if (keysPressed.includes(KeyCodes.keyD)) {
-            console.log('移动了');
             targetVector.x += 1;
         }
 
         if (keysPressed.includes(KeyCodes.keyQ)) {
-            console.log('移动了');
             targetVector.y -= 1;
         }
 
         if (keysPressed.includes(KeyCodes.keyE)) {
-            console.log('移动了');
             targetVector.y += 1;
         }
 
@@ -189,7 +190,6 @@ export function Update() {
         }
 
         if (keysPressed.includes(KeyCodes.keyW)) {
-            console.log('移动了');
             targetVector.z += 1;
         }
 
@@ -213,6 +213,7 @@ export function Update() {
     }
 
     if (Math.abs(targetVector.x - moveVector.x) > mindelta) {
+        // 阻尼，用于平滑过渡
         moveVector.x = MathUtils.damp(moveVector.x, targetVector.x, smoothSpeed, deltaTime);
     } else {
         moveVector.x = targetVector.x;
@@ -263,6 +264,6 @@ export function Update() {
     q.multiply(qy);
 
     camera.quaternion.copy(q);
-    UpdateCameraRotation();
     dynamicCamera.quaternion.copy(q);
+    UpdateCameraRotation();
 }

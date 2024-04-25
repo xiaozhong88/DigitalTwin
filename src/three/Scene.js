@@ -1,14 +1,20 @@
 import { Group, PerspectiveCamera, Scene, Vector3, WebGLRenderer } from "three";
 import * as Skybox from "./scene/SkyBox.js";
 import * as Ocean from "./scene/Ocean.js";
-import * as SphericalRobot from "./scene/SphericalRobot.js";
+import * as Floor from "./scene/Floor.js";
+import * as FishPond from "./scene/FishPond.js";
 
 export const body = document.createElement("div");
 
-export const renderer = new WebGLRenderer();
+const canvas = document.createElement('canvas');
+export const renderer = new WebGLRenderer({
+    // canvas: canvas,
+    // context: canvas.getContext('webgl2'),
+    antialias: true, // 抗锯齿 
+});
 export const scene = new Scene();
 export const camera = new PerspectiveCamera();
-export const staticCamera = new PerspectiveCamera();
+// export const staticCamera = new PerspectiveCamera();
 export const dynamicCamera = new PerspectiveCamera();
 export const staticScene = new Group();
 
@@ -84,24 +90,24 @@ export function Start() {
     camera.aspect = width / height;
     camera.near = 0.3;
     camera.far = 4000;
+    camera.position.set(100, 200, 100);
     camera.updateProjectionMatrix();
-    camera.position.set(0, 1, 0);
 
     UpdateCameraRotation();
 
-    staticCamera.fov = 75;
-    staticCamera.aspect = width / height;
-    staticCamera.near = 0.01;
-    staticCamera.far = 4000;
-    staticCamera.updateProjectionMatrix();
-    staticCamera.position.set(0, 3, 6);
+    // staticCamera.fov = 75;
+    // staticCamera.aspect = width / height;
+    // staticCamera.near = 0.01;
+    // staticCamera.far = 4000;
+    // staticCamera.updateProjectionMatrix();
+    // staticCamera.position.set(0, 3, 6);
 
     dynamicCamera.fov = 60;
     dynamicCamera.aspect = width / height;
     dynamicCamera.near = 0.1;
     dynamicCamera.far = 10;
-    dynamicCamera.updateProjectionMatrix();
     dynamicCamera.position.set(0, 0, 0);
+    dynamicCamera.updateProjectionMatrix();
 
     window.onresize = function () {
         width = window.innerWidth * resMult * window.devicePixelRatio;
@@ -122,8 +128,8 @@ export function Start() {
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
 
-        staticCamera.aspect = width / height;
-        staticCamera.updateProjectionMatrix();
+        // staticCamera.aspect = width / height;
+        // staticCamera.updateProjectionMatrix();
 
         dynamicCamera.aspect = width / height;
         dynamicCamera.updateProjectionMatrix();
@@ -135,13 +141,20 @@ export function Start() {
     Ocean.Start();
     scene.add(Ocean.surface);
 
-    SphericalRobot.Start();
-    scene.add(SphericalRobot.videoMesh);
+    // Floor.Start();
+    // for (let i = 0; i < Floor.tiles.length; i++) {
+    //     scene.add(Floor.tiles[i]);
+    // }
+
+    FishPond.Start();
+    // scene.add(SphericalRobot.videoMesh);
 }
 
 export function Update() {
     Skybox.Update();
     Ocean.Update();
+    // Floor.Update();
+    // SphericalRobot.Update();
 
     renderer.render(scene, camera);
     renderer.render(staticScene, dynamicCamera);

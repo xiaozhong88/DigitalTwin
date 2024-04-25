@@ -100,12 +100,12 @@ export class KeyCodes {
     static arrowLeft = "ArrowLeft";
 }
 
-export let keysPressed = new Array();
-export let keysJustPressed = new Array();
-export let pointers = new Array();
-export let mouseMovement = new Vector2();
-export let lastPointerLockChange = -2;
-export let lastFullscreenChange = 0;
+export let keysPressed = new Array(); // 当前被按下键的键码
+export let keysJustPressed = new Array(); // 最近一帧中被按下键的键码
+export let pointers = new Array(); // 当前活动的指针对象
+export let mouseMovement = new Vector2(); // 存储最近一帧中鼠标的位移向量
+export let lastPointerLockChange = -2; // 最后一次指针锁定状态的改变时间
+export let lastFullscreenChange = 0; // 最后一次全屏状态的改变时间
 
 let keysPressedCopy = new Array();
 let pointersCopy = new Array();
@@ -149,14 +149,105 @@ export function Start() {
 
     document.addEventListener("mousemove", function (e) {
         if (document.pointerLockElement) {
+            // 浏览器坐标系的 Y 轴方向与常规的笛卡尔坐标系相反
             mouseMovement.add(new Vector2(e.movementX, -e.movementY));
         }
     });
 
+    // onMounted(() => {
+    //     console.log('object :>> ', document.getElementById('app'));
+    //     document.getElementById('app').addEventListener("pointerdown", (e) => {
+    //         console.log('点击了');
+    //         let i = IndexOfId(pointers, e.pointerId);
+    //         if (i < 0) {
+    //             pointers.push(new Pointer(e.pointerId, PointerPhase.began, new Vector2(e.clientX, e.clientY), new Vector2(), e.pointerType));
+    //         } else {
+    //             let pointer = pointers[i].clone();
+    //             pointer.phase = PointerPhase.began;
+    //             pointers[i] = pointer;
+    //         }
+    //     });
+
+    //     document.getElementById('app').addEventListener("pointermove", function (e) {
+    //         let i = IndexOfId(pointers, e.pointerId);
+    //         if (i >= 0) {
+    //             let phase = pointers[i].phase;
+    //             if (phase == PointerPhase.began || phase == PointerPhase.ended || phase == PointerPhase.cancelled) {
+    //                 return;
+    //             }
+
+    //             let pointer = pointers[i].clone();
+    //             pointer.phase = PointerPhase.moved;
+    //             pointer.position.setX(e.clientX);
+    //             pointer.position.setY(e.clientY);
+    //             pointers[i] = pointer;
+    //         }
+    //     });
+
+    //     document.getElementById('app').addEventListener("pointerup", function (e) {
+    //         let i = IndexOfId(pointers, e.pointerId);
+    //         if (i >= 0) {
+    //             let pointer = pointers[i].clone();
+    //             pointer.phase = PointerPhase.ended;
+    //             pointers[i] = pointer;
+    //         }
+    //     });
+
+    //     document.getElementById('app').addEventListener("pointercancel", function (e) {
+    //         let i = IndexOfId(pointers, e.pointerId);
+    //         if (i >= 0) {
+    //             let pointer = pointers[i].clone();
+    //             pointer.phase = PointerPhase.cancelled;
+    //             pointers[i] = pointer;
+    //         }
+    //     });
+
+    //     document.getElementById('app').addEventListener("pointerdown", function (e) {
+    //         e.target.releasePointerCapture(e.pointerId);
+    //     })
+    // })
+
+    // 鼠标点击事件
+    // renderer.domElement.addEventListener("pointerdown", (e) => {
+    //     let i = IndexOfId(pointers, e.pointerId);
+    //     if (i < 0) {
+    //         pointers.push(new Pointer(e.pointerId, PointerPhase.began, new Vector2(e.clientX, e.clientY), new Vector2(), e.pointerType));
+    //     } else {
+    //         let pointer = pointers[i].clone();
+    //         pointer.phase = PointerPhase.began;
+    //         pointers[i] = pointer;
+    //     }
+    // });
+
     onMounted(() => {
-        console.log('object :>> ', document.getElementById('app').childNodes[0]);
-        document.getElementById('app').addEventListener("pointerdown", (e) => {
+        // console.log(document.childNodes[1].childNodes[2].querySelector('#app').querySelector('#mBar'))
+        // console.log(document.getElementById('app').querySelector('#mBar'))
+        // console.log(document.getElementById('app'))
+        // console.log(document.getElementById('app').querySelector('#btn'))
+
+        // document.getElementById('app').querySelector('#mBar').addEventListener("pointerdown", (e) => {
+        //     console.log('点击了');
+
+        //     let i = IndexOfId(pointers, e.pointerId);
+        //     if (i < 0) {
+        //         pointers.push(new Pointer(e.pointerId, PointerPhase.began, new Vector2(e.clientX, e.clientY), new Vector2(), e.pointerType));
+        //     } else {
+        //         let pointer = pointers[i].clone();
+        //         pointer.phase = PointerPhase.began;
+        //         pointers[i] = pointer;
+        //     }
+        // });
+
+        // document.getElementById('app').querySelector('#btn').removeEventListener("pointerdown", (e) => {
+
+        // });
+        // document.getElementById('app').querySelector('#btn').addEventListener("pointerdown", (e) => {
+        //     console.log("按钮点击了")
+        // });
+
+        document.getElementById('app').querySelector('#control').addEventListener("pointerdown", (e) => {
             console.log('点击了');
+
             let i = IndexOfId(pointers, e.pointerId);
             if (i < 0) {
                 pointers.push(new Pointer(e.pointerId, PointerPhase.began, new Vector2(e.clientX, e.clientY), new Vector2(), e.pointerType));
@@ -166,9 +257,14 @@ export function Start() {
                 pointers[i] = pointer;
             }
         });
-    })
-    // 鼠标点击事件
-    // renderer.domElement.addEventListener("pointerdown", (e) => {
+
+        // document.getElementById('app').querySelector('#btn').addEventListener("pointerdown", (e) => {
+        //     console.log('按钮点击了')
+        // });
+    });
+    // console.log(document.childNodes[1].childNodes[2].querySelector('#app').querySelector('#mBar'))
+    // document.addEventListener("pointerdown", (e) => {
+    //     console.log('点击了');
     //     let i = IndexOfId(pointers, e.pointerId);
     //     if (i < 0) {
     //         pointers.push(new Pointer(e.pointerId, PointerPhase.began, new Vector2(e.clientX, e.clientY), new Vector2(), e.pointerType));

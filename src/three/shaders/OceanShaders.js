@@ -234,7 +234,7 @@ export const triplanarFragment =
 
         vec3 viewVec = _worldPos - cameraPosition;
         float viewLen = length(viewVec);
-        vec3 viewDir = viewVeC / viewLen;
+        vec3 viewDir = viewVec / viewLen;
 
         if (_worldPos.y > 0.0) {
             if (cameraPosition.y < 0.0) {
@@ -244,7 +244,7 @@ export const triplanarFragment =
             sampleDither(gl_FragCoord.xy);
             vec3 fogColor = sampleFog(viewDir);
             float fog = clamp(viewLen / FOG_DISTANCE + dither, 0.0, 1.0);
-            fl_FragColor = vec4(mix(texture, fogColor, fog), 1.0);
+            gl_FragColor = vec4(mix(texture, fogColor, fog), 1.0);
             return;
         }
 
@@ -252,12 +252,12 @@ export const triplanarFragment =
 
         if (cameraPosition.y > 0.0) {
             viewLen -= cameraPosition.y / -viewDir.y;
-            oringinY = 0.0;
+            originY = 0.0;
         }
         viewLen = min(viewLen, MAX_VIEW_DEPTH);
 
-        float sampleY = oringinY + viewDir.y * viewLen;
-        vec3 ligth = exp((sampleY - viewLen * DENSITY) * ABSORPTION) * _Light;
+        float sampleY = originY + viewDir.y * viewLen;
+        vec3 light = exp((sampleY - viewLen * DENSITY) * ABSORPTION) * _Light;
 
         float spotLight = 0.0;
         float spotLightDistance = 1.0;
